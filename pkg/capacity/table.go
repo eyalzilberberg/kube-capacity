@@ -28,6 +28,7 @@ type tablePrinter struct {
 	showPodCount    bool
 	showContainers  bool
 	showNamespace   bool
+	showLimit       bool
 	sortBy          string
 	w               *tabwriter.Writer
 	availableFormat bool
@@ -118,14 +119,18 @@ func (tp *tablePrinter) getLineItems(tl *tableLine) []string {
 	}
 
 	lineItems = append(lineItems, tl.cpuRequests)
-	lineItems = append(lineItems, tl.cpuLimits)
+	if tp.showLimit {
+		lineItems = append(lineItems, tl.cpuLimits)
+	}
 
 	if tp.showUtil {
 		lineItems = append(lineItems, tl.cpuUtil)
 	}
 
 	lineItems = append(lineItems, tl.memoryRequests)
-	lineItems = append(lineItems, tl.memoryLimits)
+	if tp.showLimit {
+		lineItems = append(lineItems, tl.memoryLimits)
+	}
 
 	if tp.showUtil {
 		lineItems = append(lineItems, tl.memoryUtil)
