@@ -16,12 +16,12 @@ package capacity
 
 import (
 	"fmt"
-	"sort"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	resourcehelper "k8s.io/kubectl/pkg/util/resource"
 	v1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
+	"math"
+	"sort"
 )
 
 // SupportedSortAttributes lists the valid sorting options
@@ -43,6 +43,7 @@ var SupportedSortAttributes = [...]string{
 
 // Mebibyte represents the number of bytes in a mebibyte.
 const Mebibyte = 1024 * 1024
+const Gigabyte = 1024 * 1024 * 1024
 
 type resourceMetric struct {
 	resourceType string
@@ -413,15 +414,39 @@ func resourceString(resourceType string, actual, allocatable resource.Quantity, 
 
 	switch resourceType {
 	case "cpu":
-		actualStr = fmt.Sprintf("%dm", actual.MilliValue())
+		actualStr = parseCPURequests(actual)
 	case "memory":
-		actualStr = fmt.Sprintf("%dMi", formatToMegiBytes(actual))
+		actualStr = parseMemoryRequests(actual)
 	default:
 		actualStr = fmt.Sprintf("%d", actual.Value())
 	}
 
 	return fmt.Sprintf("%s (%d%%%%)", actualStr, int64(utilPercent))
 
+}
+
+func parseCPURequests(actual resource.Quantity) string {
+	CPURequests := float64(actual.MilliValue()) / 1000
+	CPURequests = math.Floor(CPURequests*10) / 10
+	var formatString string
+	if CPURequests == math.Floor(CPURequests) {
+		formatString = "%.0f"
+	} else {
+		formatString = "%.1f"
+	}
+	return fmt.Sprintf(formatString, CPURequests)
+}
+
+func parseMemoryRequests(actual resource.Quantity) string {
+	memoryRequests := float64(actual.Value()) / Gigabyte
+	memoryRequests = math.Floor(memoryRequests*10) / 10
+	var formatString string
+	if memoryRequests == math.Floor(memoryRequests) {
+		formatString = "%.0f"
+	} else {
+		formatString = "%.1f"
+	}
+	return fmt.Sprintf(formatString, memoryRequests)
 }
 
 func formatToMegiBytes(actual resource.Quantity) int64 {

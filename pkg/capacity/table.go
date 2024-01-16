@@ -56,7 +56,7 @@ var headerStrings = tableLine{
 	cpuRequests:    "CPU REQUESTS",
 	cpuLimits:      "CPU LIMITS",
 	cpuUtil:        "CPU UTIL",
-	memoryRequests: "MEMORY REQUESTS",
+	memoryRequests: "MEMORY REQUESTS (GBi)",
 	memoryLimits:   "MEMORY LIMITS",
 	memoryUtil:     "MEMORY UTIL",
 	podCount:       "POD COUNT",
