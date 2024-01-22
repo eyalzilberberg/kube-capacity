@@ -427,26 +427,23 @@ func resourceString(resourceType string, actual, allocatable resource.Quantity, 
 
 func parseCPURequests(actual resource.Quantity) string {
 	CPURequests := float64(actual.MilliValue()) / 1000
-	CPURequests = math.Floor(CPURequests*10) / 10
-	var formatString string
-	if CPURequests == math.Floor(CPURequests) {
-		formatString = "%.0f"
-	} else {
-		formatString = "%.1f"
-	}
-	return fmt.Sprintf(formatString, CPURequests)
+	return parseSingleDigit(CPURequests)
 }
 
 func parseMemoryRequests(actual resource.Quantity) string {
 	memoryRequests := float64(actual.Value()) / Gigabyte
-	memoryRequests = math.Floor(memoryRequests*10) / 10
+	return parseSingleDigit(memoryRequests)
+}
+
+func parseSingleDigit(resourceValue float64) string {
+	resourceValue = math.Floor(resourceValue*10) / 10
 	var formatString string
-	if memoryRequests == math.Floor(memoryRequests) {
-		formatString = "%.0f"
+	if resourceValue == math.Floor(resourceValue) {
+		formatString = "%.0f  "
 	} else {
 		formatString = "%.1f"
 	}
-	return fmt.Sprintf(formatString, memoryRequests)
+	return fmt.Sprintf(formatString, resourceValue)
 }
 
 func formatToMegiBytes(actual resource.Quantity) int64 {
