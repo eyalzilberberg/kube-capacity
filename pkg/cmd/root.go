@@ -29,6 +29,7 @@ var showUtil bool
 var showPodCount bool
 var podLabels string
 var nodeLabels string
+var nodeLabelsToShow string
 var excludeTainted bool
 var namespaceLabels string
 var namespace string
@@ -53,7 +54,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		capacity.FetchAndPrint(showContainers, showPods, showLimit, showUtil, showPodCount, excludeTainted, availableFormat, podLabels,
-			nodeLabels, namespaceLabels, namespace, kubeContext, kubeConfig, outputFormat, sortBy)
+			nodeLabels, nodeLabelsToShow, namespaceLabels, namespace, kubeContext, kubeConfig, outputFormat, sortBy)
 	},
 }
 
@@ -74,6 +75,8 @@ func init() {
 		"pod-labels", "l", "", "labels to filter pods with")
 	rootCmd.PersistentFlags().StringVarP(&nodeLabels,
 		"node-labels", "", "", "labels to filter nodes with")
+	rootCmd.PersistentFlags().StringVarP(&nodeLabelsToShow,
+		"node-labels-show", "L", "", "labels nodes to dhow")
 	rootCmd.PersistentFlags().BoolVarP(&excludeTainted,
 		"no-taint", "", false, "exclude nodes with taints")
 	rootCmd.PersistentFlags().StringVarP(&namespaceLabels,

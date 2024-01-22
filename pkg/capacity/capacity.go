@@ -29,7 +29,7 @@ import (
 )
 
 // FetchAndPrint gathers cluster resource data and outputs it
-func FetchAndPrint(showContainers, showPods, showLimit, showUtil, showPodCount, excludeTainted, availableFormat bool, podLabels, nodeLabels, namespaceLabels, namespace, kubeContext, kubeConfig, output, sortBy string) {
+func FetchAndPrint(showContainers, showPods, showLimit, showUtil, showPodCount, excludeTainted, availableFormat bool, podLabels, nodeLabels, nodeLabelsToShow, namespaceLabels, namespace, kubeContext, kubeConfig, output, sortBy string) {
 	clientset, err := kube.NewClientSet(kubeContext, kubeConfig)
 	if err != nil {
 		fmt.Printf("Error connecting to Kubernetes: %v\n", err)
@@ -53,10 +53,10 @@ func FetchAndPrint(showContainers, showPods, showLimit, showUtil, showPodCount, 
 		}
 	}
 
-	cm := buildClusterMetric(podList, pmList, nodeList, nmList)
+	cm := buildClusterMetric(podList, pmList, nodeList, nmList, nodeLabelsToShow)
 	showNamespace := namespace == ""
 
-	printList(&cm, showContainers, showPods, showLimit, showUtil, showPodCount, showNamespace, output, sortBy, availableFormat)
+	printList(&cm, showContainers, showPods, showLimit, showUtil, showPodCount, showNamespace, output, sortBy, availableFormat, nodeLabelsToShow)
 }
 
 func getPodsAndNodes(clientset kubernetes.Interface, excludeTainted bool, podLabels, nodeLabels, namespaceLabels, namespace string) (*corev1.PodList, *corev1.NodeList) {

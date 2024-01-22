@@ -66,6 +66,7 @@ type nodeMetric struct {
 	memory     *resourceMetric
 	podMetrics map[string]*podMetric
 	podCount   *podCount
+	nodeLabels map[string]string
 }
 
 type podMetric struct {
@@ -87,8 +88,20 @@ type podCount struct {
 	allocatable int64
 }
 
+func filterMap(originalMap map[string]string, keysToKeep []string) map[string]string {
+	filteredMap := make(map[string]string)
+
+	for _, key := range keysToKeep {
+		if value, ok := originalMap[key]; ok {
+			filteredMap[key] = value
+		}
+	}
+
+	return filteredMap
+}
+
 func buildClusterMetric(podList *corev1.PodList, pmList *v1beta1.PodMetricsList,
-	nodeList *corev1.NodeList, nmList *v1beta1.NodeMetricsList) clusterMetric {
+	nodeList *corev1.NodeList, nmList *v1beta1.NodeMetricsList, nodeLabelsToShow string) clusterMetric {
 	cm := clusterMetric{
 		cpu:         &resourceMetric{resourceType: "cpu"},
 		memory:      &resourceMetric{resourceType: "memory"},
@@ -107,8 +120,11 @@ func buildClusterMetric(podList *corev1.PodList, pmList *v1beta1.PodMetricsList,
 		}
 		totalPodCurrent += tmpPodCount
 		totalPodAllocatable += node.Status.Allocatable.Pods().Value()
+		filteredMap := filterMap(node.Labels, []string{nodeLabelsToShow})
+
 		cm.nodeMetrics[node.Name] = &nodeMetric{
-			name: node.Name,
+			nodeLabels: filteredMap,
+			name:       node.Name,
 			cpu: &resourceMetric{
 				resourceType: "cpu",
 				allocatable:  node.Status.Allocatable["cpu"],
