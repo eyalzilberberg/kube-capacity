@@ -32,7 +32,7 @@ type tablePrinter struct {
 	sortBy           string
 	w                *tabwriter.Writer
 	availableFormat  bool
-	nodeLabelsToShow string
+	nodeLabelsToShow []string
 }
 
 type tableLine struct {
@@ -47,7 +47,7 @@ type tableLine struct {
 	memoryLimits   string
 	memoryUtil     string
 	podCount       string
-	nodeLabel      string
+	nodeLabels     []string
 }
 
 func (tp *tablePrinter) getHeaderString() tableLine {
@@ -63,7 +63,7 @@ func (tp *tablePrinter) getHeaderString() tableLine {
 		memoryLimits:   "MEMORY LIMITS",
 		memoryUtil:     "MEMORY UTIL",
 		podCount:       "POD COUNT",
-		nodeLabel:      tp.nodeLabelsToShow,
+		nodeLabels:     tp.nodeLabelsToShow,
 	}
 }
 
@@ -146,14 +146,13 @@ func (tp *tablePrinter) getLineItems(tl *tableLine) []string {
 		lineItems = append(lineItems, tl.podCount)
 	}
 
-	if tp.nodeLabelsToShow != "" {
-		lineItems = append(lineItems, tl.nodeLabel)
-	}
+	lineItems = append(lineItems, tl.nodeLabels...)
 
 	return lineItems
 }
 
 func (tp *tablePrinter) printClusterLine() {
+	emptyStringSlice := make([]string, len(tp.nodeLabelsToShow))
 	tp.printLine(&tableLine{
 		node:           "*",
 		namespace:      "*",
@@ -166,11 +165,18 @@ func (tp *tablePrinter) printClusterLine() {
 		memoryLimits:   tp.cm.memory.limitString(tp.availableFormat),
 		memoryUtil:     tp.cm.memory.utilString(tp.availableFormat),
 		podCount:       tp.cm.podCount.podCountString(),
-		nodeLabel:      "",
+		nodeLabels:     emptyStringSlice,
 	})
 }
 
 func (tp *tablePrinter) printNodeLine(nodeName string, nm *nodeMetric) {
+	var values []string
+
+	for _, key := range tp.nodeLabelsToShow {
+		value, _ := nm.nodeLabels[key]
+		values = append(values, value)
+	}
+
 	tp.printLine(&tableLine{
 		node:           nodeName,
 		namespace:      "*",
@@ -183,7 +189,7 @@ func (tp *tablePrinter) printNodeLine(nodeName string, nm *nodeMetric) {
 		memoryLimits:   nm.memory.limitString(tp.availableFormat),
 		memoryUtil:     nm.memory.utilString(tp.availableFormat),
 		podCount:       nm.podCount.podCountString(),
-		nodeLabel:      nm.nodeLabels[tp.nodeLabelsToShow],
+		nodeLabels:     values,
 	})
 }
 

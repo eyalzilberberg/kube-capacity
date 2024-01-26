@@ -38,7 +38,7 @@ func SupportedOutputs() []string {
 	}
 }
 
-func printList(cm *clusterMetric, showContainers, showPods, showLimit, showUtil, showPodCount, showNamespace bool, output, sortBy string, availableFormat bool, nodeLabelsToShow string) {
+func printList(cm *clusterMetric, showContainers, showPods, showLimit, showUtil, showPodCount, showNamespace bool, output, sortBy string, availableFormat bool, nodeLabelsToShow []string) {
 	if output == JSONOutput || output == YAMLOutput {
 		lp := &listPrinter{
 			cm:             cm,

@@ -101,7 +101,7 @@ func filterMap(originalMap map[string]string, keysToKeep []string) map[string]st
 }
 
 func buildClusterMetric(podList *corev1.PodList, pmList *v1beta1.PodMetricsList,
-	nodeList *corev1.NodeList, nmList *v1beta1.NodeMetricsList, nodeLabelsToShow string) clusterMetric {
+	nodeList *corev1.NodeList, nmList *v1beta1.NodeMetricsList, nodeLabelsToShow []string) clusterMetric {
 	cm := clusterMetric{
 		cpu:         &resourceMetric{resourceType: "cpu"},
 		memory:      &resourceMetric{resourceType: "memory"},
@@ -120,7 +120,7 @@ func buildClusterMetric(podList *corev1.PodList, pmList *v1beta1.PodMetricsList,
 		}
 		totalPodCurrent += tmpPodCount
 		totalPodAllocatable += node.Status.Allocatable.Pods().Value()
-		filteredMap := filterMap(node.Labels, []string{nodeLabelsToShow})
+		filteredMap := filterMap(node.Labels, nodeLabelsToShow)
 
 		cm.nodeMetrics[node.Name] = &nodeMetric{
 			nodeLabels: filteredMap,
