@@ -1,1 +1,1 @@
-aws s3 ls s3://test-so | grep kube-capacity
+aws s3 ls s3://scaleops-remote-support/s3/ | grep kube-capacity
